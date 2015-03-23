@@ -10,7 +10,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <head>
   <title>Observation Benchmarks</title>
   <meta charset="utf-8">
-  <script src="observation_benchmark.js"></script>
   <style>
     * {
       font-family: arial, helvetica, sans-serif;
@@ -20,6 +19,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       margin: 0;
       padding: 0;
       background-color: rgba(0, 0, 0, .1);
+    }
+    #canvasWrapper {
+      width: 800px;
+      height: 400px;
     }
   </style>
 </head>
@@ -51,8 +54,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div style="display:inline-block; padding-bottom: 20px">
       Times in ms
     </div>
-    <div style="display:inline-block">
-      <canvas id="times" width="800" height="400"></canvas>
+    <div id="canvasWrapper" style="display:inline-block">
+      <!--<canvas id="times" width="800" height="400"></canvas>-->
     </div>
     <div style="display:inline-block">
       <ul id="legendList">
@@ -61,128 +64,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </article>
 </section>
 <h3 style="margin-left: 440px">Object Set Size</h3>
-<script type="application/dart">
-  import 'dart:html';
-  import 'package:benchmark_harness/benchmark_harness.dart';
-
-  var benchmark;
-  var benchmarks;
-  var goButton = document.getElementById('go');
-  var objectCountInput = document.getElementById('objectCountInput');
-  var mutationCountInput = document.getElementById('mutationCountInput');
-  var statusSpan = document.getElementById('status');
-  var timesCanvas = document.getElementById('times');
-  var benchmarkSelect = document.getElementById('benchmarkSelect');
-  var configSelect = document.getElementById('configSelect');
-
-  class Benchmark {
-    final List configs;
-    final int propertyCount;
-
-    Benchmark(this.configs, this.propertyCount);
-  }
-
-  main() {
-    benchmarks = {
-      'ObjectBenchmark': new Benchmark([], 15),
-    };
-    goButton = document.getElementById('go') as ButtonElement;
-    objectCountInput = document.getElementById('objectCountInput') as InputElement;
-    mutationCountInput = document.getElementById('mutationCountInput') as InputElement;
-    statusSpan = document.getElementById('status') as SpanElement;
-    timesCanvas = document.getElementById('times') as CanvasElement;
-    benchmarkSelect = document.getElementById('benchmarkSelect') as SelectElement;
-    configSelect = document.getElementById('configSelect') as SelectElement;
-
-    benchmarkSelect.onChange.listen((_) => changeBenchmark());
-    changeBenchmark();
-
-    var ul = document.getElementById('legendList') as UListElement;
-    var colors = [
-      [0, 0, 255],
-      [138,43,226],
-      [165,42,42],
-      [100,149,237],
-      [220,20,60],
-      [184,134,11]
-    ].map((rgb) => 'rgba(' + rgb.join(',') + ',.7)');
-
-    goButton.onClick.listen((_) {
-      goButton.disabled = true;
-      goButton.text = 'Running...';
-      ul.text = '';
-      var objectCounts =
-          objectCountInput.value.split(',').map((val) => int.parse(val));
-      var mutationCounts =
-          mutationCountInput.value.split(',').map((val) => int.parse(val));
-
-      var i = 0;
-      mutationCounts.forEach((count) {
-        var li = document.createElement('li');
-        li.text = count + ' mutations.';
-        li.style.color = colors[i];
-        ul.appendChild(li);
-        i++;
-      });
-
-      var results = [];
-      benchmarkComplete(times) {
-        var timesArray = [];
-        var i = 0;
-        mutationCounts.forEach((mutationCount) {
-          timesArray.push([]);
-          var j = 0;
-          objectCounts.forEach((objectCount) {
-            timesArray[i][j] = times[j][i];
-            j++;
-          });
-          i++;
-        });
-//        timesCanvas.height = 400;
-//        timesCanvas.width = 800;
-//        timesCanvas.setAttribute('style', '');
-//        var ctx = timesCanvas.getContext("2d");
-//        new Chart(ctx).Line({
-//          labels: objectCounts,
-//          datasets: timesArray.map(function(times, i) {
-//            return {
-//              fillColor: 'rgba(255, 255, 255, 0)',
-//              strokeColor: colors[i],
-//              pointColor: colors[i],
-//              pointStrokeColor: "#fff",
-//              data: times
-//            };
-//          })
-//        }, {
-//          bezierCurve: false
-//        });
-        goButton.disabled = false;
-        goButton.text = 'Run Benchmarks';
-        statusSpan.text = '';
-      }
-
-      updateStatus(benchmark, mutationCount, count) {
-        statusSpan.text = 'Testing: ${benchmark.objectCount} objects, '
-            '$mutationCount mutations ... $count runs';
-      }
-
-//      var benchmarks = objectCounts.map(
-//          (objectCount) => new Benchmark(configSelect.value, objectCount));
-//      Benchmark.all(benchmarks, mutationCounts, updateStatus)
-//        .then(benchmarkComplete);
-    });
-  }
-
-  void changeBenchmark() {
-    benchmark = benchmarks[benchmarkSelect.value];
-    configSelect.text = '';
-    benchmark.configs.forEach((config) {
-      var option = document.createElement('option');
-      option.text = config;
-      configSelect.appendChild(option);
-    });
-    document.title = benchmarkSelect.value;
-  }
+<script type="application/dart" src="index.dart"></script>
+<script src="packages/browser/dart.js">
 </script>
 </body>
 </html>
