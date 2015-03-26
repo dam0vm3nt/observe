@@ -13,8 +13,8 @@ class PathBenchmark extends ObservationBenchmarkBase {
   final PropertyPath firstPathProp = new PropertyPath('foo');
 
   PathBenchmark(int objectCount, int mutationCount, String config)
-      : super('PathBenchmark:$objectCount:$mutationCount:$config',
-          objectCount, mutationCount, config),
+      : super('PathBenchmark:$objectCount:$mutationCount:$config', objectCount,
+          mutationCount, config),
         leaf = config == 'leaf';
 
   @override

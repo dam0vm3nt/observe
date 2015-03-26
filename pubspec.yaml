@@ -22,7 +22,7 @@ dependencies:
 dev_dependencies:
   benchmark_harness: '>=1.0.0 <2.0.0'
   browser: any
-  unittest: '>=0.10.0 <0.11.0'
+  unittest: '>=0.10.0 <0.12.0'
   stack_trace: '>=0.9.1 <2.0.0'
 environment:
   sdk: '>=1.2.0 <2.0.0'
@@ -31,6 +31,3 @@ transformers:
     files:
       - test/benchmark/test_observable.dart
       - test/benchmark/test_path_observable.dart
-dependency_overrides:
-  benchmark_harness:
-    path: ../benchmark_harness

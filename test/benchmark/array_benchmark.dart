@@ -9,9 +9,9 @@ import 'observation_benchmark_base.dart';
 class ArrayBenchmark extends ObservationBenchmarkBase {
   final int elementCount = 100;
 
-  ArrayBenchmark(int objectCount, int mutationCount, String config)
-      : super('ArrayBenchmark:$objectCount:$mutationCount:$config',
-          objectCount, mutationCount, config);
+  ArrayBenchmark(int objectCount, int mutationCount, String config) : super(
+          'ArrayBenchmark:$objectCount:$mutationCount:$config', objectCount,
+          mutationCount, config);
 
   @override
   int mutateObject(ObservableList obj) {

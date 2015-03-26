@@ -61,7 +61,7 @@ abstract class ObservationBenchmarkBase extends BenchmarkBase {
     observers = [];
     objectIndex = 0;
 
-    while(objects.length < objectCount) {
+    while (objects.length < objectCount) {
       var obj = newObject();
       objects.add(obj);
       observers.add(newObserver(obj));

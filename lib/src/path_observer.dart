@@ -713,6 +713,7 @@ abstract class _Observer extends Bindable {
   // abstract members
   void _iterateObjects(void observe(obj, prop));
   void _connect();
+  void _disconnect();
   bool _check({bool skipChanges: false});
 
   static int _UNOPENED = 0;

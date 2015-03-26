@@ -15,20 +15,19 @@ import 'setup_array_benchmark.dart';
 import 'path_benchmark.dart';
 import 'setup_path_benchmark.dart';
 
-
 var benchmarks = {
-  'ObjectBenchmark': (int objectCount, int mutationCount, String config)
-      => new ObjectBenchmark(objectCount, mutationCount, config),
-  'SetupObjectBenchmark': (int objectCount, int mutationCount, String config)
-      => new SetupObjectBenchmark(objectCount, config),
-  'ArrayBenchmark': (int objectCount, int mutationCount, String config)
-      => new ArrayBenchmark(objectCount, mutationCount, config),
-  'SetupArrayBenchmark': (int objectCount, int mutationCount, String config)
-      => new SetupArrayBenchmark(objectCount, config),
-  'PathBenchmark': (int objectCount, int mutationCount, String config)
-      => new PathBenchmark(objectCount, mutationCount, config),
-  'SetupPathBenchmark': (int objectCount, int mutationCount, String config)
-      => new SetupPathBenchmark(objectCount, config),
+  'ObjectBenchmark': (int objectCount, int mutationCount, String config) =>
+      new ObjectBenchmark(objectCount, mutationCount, config),
+  'SetupObjectBenchmark': (int objectCount, int mutationCount, String config) =>
+      new SetupObjectBenchmark(objectCount, config),
+  'ArrayBenchmark': (int objectCount, int mutationCount, String config) =>
+      new ArrayBenchmark(objectCount, mutationCount, config),
+  'SetupArrayBenchmark': (int objectCount, int mutationCount, String config) =>
+      new SetupArrayBenchmark(objectCount, config),
+  'PathBenchmark': (int objectCount, int mutationCount, String config) =>
+      new PathBenchmark(objectCount, mutationCount, config),
+  'SetupPathBenchmark': (int objectCount, int mutationCount, String config) =>
+      new SetupPathBenchmark(objectCount, config),
 };
 var benchmarkConfigs = {
   'ObjectBenchmark': [],
@@ -38,22 +37,25 @@ var benchmarkConfigs = {
   'PathBenchmark': ['leaf', 'root'],
   'SetupPathBenchmark': [],
 };
-List<int> objectCounts;
-List<int> mutationCounts;
+Iterable<int> objectCounts;
+Iterable<int> mutationCounts;
 var goButton = document.getElementById('go') as ButtonElement;
-var objectCountInput = document.getElementById('objectCountInput') as InputElement;
-var mutationCountInput = document.getElementById('mutationCountInput') as InputElement;
+var objectCountInput =
+    document.getElementById('objectCountInput') as InputElement;
+var mutationCountInput =
+    document.getElementById('mutationCountInput') as InputElement;
 var statusSpan = document.getElementById('status') as SpanElement;
 var canvaseWrapper = document.getElementById('canvasWrapper') as DivElement;
-var benchmarkSelect = document.getElementById('benchmarkSelect') as SelectElement;
+var benchmarkSelect =
+    document.getElementById('benchmarkSelect') as SelectElement;
 var configSelect = document.getElementById('configSelect') as SelectElement;
 var colors = [
   [0, 0, 255],
-  [138,43,226],
-  [165,42,42],
-  [100,149,237],
-  [220,20,60],
-  [184,134,11]
+  [138, 43, 226],
+  [165, 42, 42],
+  [100, 149, 237],
+  [220, 20, 60],
+  [184, 134, 11]
 ].map((rgb) => 'rgba(' + rgb.join(',') + ',.7)').toList();
 
 main() {
@@ -69,9 +71,10 @@ main() {
     goButton.text = 'Running...';
     ul.text = '';
     objectCounts =
-        objectCountInput.value.split(',').map((val) => int.parse(val)).toList();
-    mutationCounts =
-        mutationCountInput.value.split(',').map((val) => int.parse(val)).toList();
+        objectCountInput.value.split(',').map((val) => int.parse(val));
+    mutationCounts = mutationCountInput.value
+        .split(',')
+        .map((val) => int.parse(val));
 
     var i = 0;
     mutationCounts.forEach((count) {
@@ -83,23 +86,19 @@ main() {
     });
 
     var results = [];
-    for (int mutationCount in mutationCounts) {
-      var resultList = [];
-      results.add(resultList);
-      for (int objectCount in objectCounts) {
+    for (int objectCount in objectCounts) {
+      int x = 0;
+      for (int mutationCount in mutationCounts) {
         statusSpan.text = 'Testing: ${objectCount} objects, '
             '$mutationCount mutations';
         // Let the status text render before running the next benchmark.
         await new Future(() {});
-        var result = (benchmarks[benchmarkSelect.value](
-            objectCount, mutationCount, configSelect.value) as BenchmarkBase)
-//            .measure();
-            // Replace above line with this one to run faster but less
-            // consistent benchmarks:
-            //
-            .measure(maxExerciseIterations: 1, runsPerExercise: 1,
-                 minimumBenchmarkMillis: 1, minimumWarmupMillis: 1);
-        resultList.add(result / 1000);
+        var resultMicros = (benchmarks[benchmarkSelect.value](objectCount,
+            mutationCount, configSelect.value) as BenchmarkBase).measure();
+
+        if (results.length <= x) results.add([]);
+        results[x].add(resultMicros / 1000);
+        x++;
       }
     }
 
@@ -125,7 +124,7 @@ void drawBenchmarks(List<List<double>> results) {
     'datasets': datasets,
   };
 
-  new Line(data, { 'bezierCurve': false, }).show(canvaseWrapper);
+  new Line(data, {'bezierCurve': false,}).show(canvaseWrapper);
   goButton.disabled = false;
   goButton.text = 'Run Benchmarks';
   statusSpan.text = '';

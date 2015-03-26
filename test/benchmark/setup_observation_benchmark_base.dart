@@ -21,8 +21,7 @@ abstract class SetupObservationBenchmarkBase extends BenchmarkBase {
   /// The change listeners on all of our objects.
   List observers;
 
-  SetupObservationBenchmarkBase(
-      String name, this.objectCount, this.config)
+  SetupObservationBenchmarkBase(String name, this.objectCount, this.config)
       : super(name);
 
   /// Subclasses should use this method to return an observable object to be
@@ -39,7 +38,7 @@ abstract class SetupObservationBenchmarkBase extends BenchmarkBase {
     objects = [];
     observers = [];
 
-    while(objects.length < objectCount) {
+    while (objects.length < objectCount) {
       objects.add(newObject());
     }
   }
