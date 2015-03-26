@@ -28,4 +28,9 @@ environment:
   sdk: '>=1.2.0 <2.0.0'
 transformers:
 - observe:
-    files: test/benchmark/test_observable.dart
+    files:
+      - test/benchmark/test_observable.dart
+      - test/benchmark/test_path_observable.dart
+dependency_overrides:
+  benchmark_harness:
+    path: ../benchmark_harness

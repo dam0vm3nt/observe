@@ -5,16 +5,38 @@ library observe.test.benchmark.index;
 
 import 'dart:async';
 import 'dart:html';
+import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:chart/chart.dart';
+import 'package:smoke/mirrors.dart';
 import 'object_benchmark.dart';
+import 'setup_object_benchmark.dart';
+import 'array_benchmark.dart';
+import 'setup_array_benchmark.dart';
+import 'path_benchmark.dart';
+import 'setup_path_benchmark.dart';
 
-var benchmark;
+
 var benchmarks = {
   'ObjectBenchmark': (int objectCount, int mutationCount, String config)
       => new ObjectBenchmark(objectCount, mutationCount, config),
+  'SetupObjectBenchmark': (int objectCount, int mutationCount, String config)
+      => new SetupObjectBenchmark(objectCount, config),
+  'ArrayBenchmark': (int objectCount, int mutationCount, String config)
+      => new ArrayBenchmark(objectCount, mutationCount, config),
+  'SetupArrayBenchmark': (int objectCount, int mutationCount, String config)
+      => new SetupArrayBenchmark(objectCount, config),
+  'PathBenchmark': (int objectCount, int mutationCount, String config)
+      => new PathBenchmark(objectCount, mutationCount, config),
+  'SetupPathBenchmark': (int objectCount, int mutationCount, String config)
+      => new SetupPathBenchmark(objectCount, config),
 };
 var benchmarkConfigs = {
   'ObjectBenchmark': [],
+  'SetupObjectBenchmark': [],
+  'ArrayBenchmark': ['splice', 'update', 'push/pop', 'shift/unshift'],
+  'SetupArrayBenchmark': [],
+  'PathBenchmark': ['leaf', 'root'],
+  'SetupPathBenchmark': [],
 };
 List<int> objectCounts;
 List<int> mutationCounts;
@@ -35,6 +57,7 @@ var colors = [
 ].map((rgb) => 'rgba(' + rgb.join(',') + ',.7)').toList();
 
 main() {
+  useMirrors();
   benchmarkSelect.onChange.listen((_) => changeBenchmark());
   changeBenchmark();
 
@@ -66,9 +89,16 @@ main() {
       for (int objectCount in objectCounts) {
         statusSpan.text = 'Testing: ${objectCount} objects, '
             '$mutationCount mutations';
-        await new Future.delayed(new Duration(milliseconds: 10), () {});
-        var result = benchmarks[benchmarkSelect.value](
-            objectCount, mutationCount, configSelect.value).measure();
+        // Let the status text render before running the next benchmark.
+        await new Future(() {});
+        var result = (benchmarks[benchmarkSelect.value](
+            objectCount, mutationCount, configSelect.value) as BenchmarkBase)
+//            .measure();
+            // Replace above line with this one to run faster but less
+            // consistent benchmarks:
+            //
+            .measure(maxExerciseIterations: 1, runsPerExercise: 1,
+                 minimumBenchmarkMillis: 1, minimumWarmupMillis: 1);
         resultList.add(result / 1000);
       }
     }

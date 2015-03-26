@@ -4,9 +4,9 @@
 library observe.test.benchmark.observation_benchmark_base;
 
 import 'dart:async';
+import 'dart:html';
 import 'package:observe/observe.dart';
 import 'package:benchmark_harness/benchmark_harness.dart';
-import 'test_observable.dart';
 
 abstract class ObservationBenchmarkBase extends BenchmarkBase {
   /// The number of objects to create and observe.
@@ -22,19 +22,13 @@ abstract class ObservationBenchmarkBase extends BenchmarkBase {
   int mutations;
 
   /// The objects we want to observe.
-  List objects;
+  List<Observable> objects;
 
   /// The change listeners on all of our objects.
-  List<StreamSubscription<List<ChangeRecord>>> observers;
+  List observers;
 
   /// The current object being mutated.
   int objectIndex;
-
-  /// The number of mutations left to be performed.
-  int mutationsLeft;
-
-  /// Completes when each benchmark is done.
-  Completer done;
 
   ObservationBenchmarkBase(
       String name, this.objectCount, this.mutationCount, this.config)
@@ -42,7 +36,21 @@ abstract class ObservationBenchmarkBase extends BenchmarkBase {
 
   /// Subclasses should use this method to perform mutations on an object. The
   /// return value indicates how many mutations were performed on the object.
-  int mutateObject(TestObservable obj);
+  int mutateObject(obj);
+
+  /// Subclasses should use this method to return an observable object to be
+  /// benchmarked.
+  Observable newObject();
+
+  /// Subclasses should override this to do anything other than a default change
+  /// listener. It must return either a StreamSubscription or a PathObserver.
+  /// If overridden this observer should decrement [mutations] each time a
+  /// change is observed.
+  newObserver(obj) {
+    decrement(_) => mutations--;
+    if (obj is ObservableList) return obj.listChanges.listen(decrement);
+    return obj.changes.listen(decrement);
+  }
 
   /// Set up each benchmark by creating all the objects and listeners.
   @override
@@ -52,33 +60,47 @@ abstract class ObservationBenchmarkBase extends BenchmarkBase {
     objects = [];
     observers = [];
     objectIndex = 0;
-    mutationsLeft = mutationCount;
-    done = new Completer();
 
     while(objects.length < objectCount) {
-      var obj = new TestObservable();
+      var obj = newObject();
       objects.add(obj);
-      observers.add(obj.changes.listen((List<ChangeRecord> record) {
-        mutations--;
-        if (mutations == 0) done.complete();
-      }));
+      observers.add(newObserver(obj));
     }
   }
 
   /// Tear down each benchmark and make sure that [mutations] is 0.
   @override
   void teardown() {
-    objects = null;
+    if (mutations != 0) {
+      window.alert('$mutations mutation sets were not observed!');
+    }
+    mutations = 0;
+
     while (observers.isNotEmpty) {
-      observers.removeLast().cancel();
+      var observer = observers.removeLast();
+      if (observer is StreamSubscription) {
+        observer.cancel();
+      } else if (observer is PathObserver) {
+        observer.close();
+      } else {
+        throw 'Unknown observer type ${observer.runtimeType}. Only '
+            '[PathObserver] and [StreamSubscription] are supported.';
+      }
     }
     observers = null;
-    done = null;
+
+    bool leakedObservers = false;
+    while (objects.isNotEmpty) {
+      leakedObservers = objects.removeLast().hasObservers || leakedObservers;
+    }
+    if (leakedObservers) window.alert('Observers leaked!');
+    objects = null;
   }
 
   /// Run the benchmark
   @override
   void run() {
+    var mutationsLeft = mutationCount;
     while (mutationsLeft > 0) {
       var obj = objects[objectIndex];
       mutationsLeft -= mutateObject(obj);
@@ -87,6 +109,8 @@ abstract class ObservationBenchmarkBase extends BenchmarkBase {
       if (this.objectIndex == this.objects.length) {
         this.objectIndex = 0;
       }
+      obj.deliverChanges();
+      if (obj is ObservableList) obj.deliverListChanges();
     }
     Observable.dirtyCheck();
   }

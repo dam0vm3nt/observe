@@ -8,12 +8,12 @@ import 'test_observable.dart';
 
 class ObjectBenchmark extends ObservationBenchmarkBase {
   ObjectBenchmark(int objectCount, int mutationCount, String config)
-      : super('ObjectBenchmark:$objectCount:$mutationCount', objectCount, mutationCount, config);
+      : super('ObjectBenchmark:$objectCount:$mutationCount:$config',
+          objectCount, mutationCount, config);
 
   @override
   int mutateObject(TestObservable obj) {
-    // Modify the first 5 properties, why? Cause thats what the js benchmark
-    // does :-).
+    // Modify the first 5 properties.
     obj.a++;
     obj.b++;
     obj.c++;
@@ -22,4 +22,7 @@ class ObjectBenchmark extends ObservationBenchmarkBase {
     // Return # of modifications.
     return 5;
   }
+
+  @override
+  TestObservable newObject() => new TestObservable();
 }
