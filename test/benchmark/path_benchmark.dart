@@ -10,7 +10,6 @@ import 'test_path_observable.dart';
 class PathBenchmark extends ObservationBenchmarkBase {
   final bool leaf;
   final PropertyPath path = new PropertyPath('foo.bar.baz');
-  final PropertyPath firstPathProp = new PropertyPath('foo');
 
   PathBenchmark(int objectCount, int mutationCount, String config)
       : super('PathBenchmark:$objectCount:$mutationCount:$config', objectCount,
@@ -19,11 +18,13 @@ class PathBenchmark extends ObservationBenchmarkBase {
 
   @override
   int mutateObject(TestPathObservable obj) {
-    var val = path.getValueFrom(obj);
     if (leaf) {
-      path.setValueFrom(obj, val + 1);
+      obj.foo.bar.baz += 1;
+      // Make sure [obj.foo.bar] delivers its changes synchronously. The base
+      // class already handles this for [obj].
+      obj.foo.bar.deliverChanges();
     } else {
-      firstPathProp.setValueFrom(obj, new Foo(val + 1));
+      obj.foo = new Foo(obj.foo.bar.baz + 1);
     }
 
     return 1;
