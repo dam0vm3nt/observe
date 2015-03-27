@@ -15,7 +15,8 @@ import 'setup_array_benchmark.dart';
 import 'path_benchmark.dart';
 import 'setup_path_benchmark.dart';
 
-var benchmarks = {
+/// Benchmark names to factory functions.
+final Map<String, Function> benchmarks = {
   'ObjectBenchmark': (int objectCount, int mutationCount, String config) =>
       new ObjectBenchmark(objectCount, mutationCount, config),
   'SetupObjectBenchmark': (int objectCount, int mutationCount, String config) =>
@@ -29,7 +30,9 @@ var benchmarks = {
   'SetupPathBenchmark': (int objectCount, int mutationCount, String config) =>
       new SetupPathBenchmark(objectCount, config),
 };
-var benchmarkConfigs = {
+
+/// Benchmark names to possible configs.
+final Map<String, List<String>> benchmarkConfigs = {
   'ObjectBenchmark': [],
   'SetupObjectBenchmark': [],
   'ArrayBenchmark': ['splice', 'update', 'push/pop', 'shift/unshift'],
@@ -37,22 +40,20 @@ var benchmarkConfigs = {
   'PathBenchmark': ['leaf', 'root'],
   'SetupPathBenchmark': [],
 };
+
 Iterable<int> objectCounts;
 Iterable<int> mutationCounts;
-var goButton = document.getElementById('go') as ButtonElement;
-var objectCountInput =
-    document.getElementById('objectCountInput') as InputElement;
-var mutationCountInput =
-    document.getElementById('mutationCountInput') as InputElement;
-var mutationCountWrapper =
-    document.getElementById('mutationCountWrapper') as SpanElement;
-var statusSpan = document.getElementById('status') as SpanElement;
-var canvasWrapper = document.getElementById('canvasWrapper') as DivElement;
-var benchmarkSelect =
-    document.getElementById('benchmarkSelect') as SelectElement;
-var configSelect = document.getElementById('configSelect') as SelectElement;
-var legendList = document.getElementById('legendList') as UListElement;
-var colors = [
+
+final ButtonElement goButton = querySelector('#go');
+final InputElement objectCountInput = querySelector('#objectCountInput');
+final InputElement mutationCountInput = querySelector('#mutationCountInput');
+final SpanElement mutationCountWrapper = querySelector('#mutationCountWrapper');
+final SpanElement statusSpan = querySelector('#status');
+final DivElement canvasWrapper = querySelector('#canvasWrapper');
+final SelectElement benchmarkSelect = querySelector('#benchmarkSelect');
+final SelectElement configSelect = querySelector('#configSelect');
+final UListElement legendList = querySelector('#legendList');
+final List<List<String>> colors = [
   [0, 0, 255],
   [138, 43, 226],
   [165, 42, 42],
@@ -68,7 +69,6 @@ main() {
 
   benchmarkSelect.onChange.listen((_) => changeBenchmark());
   changeBenchmark();
-
 
   goButton.onClick.listen((_) async {
     canvasWrapper.children.clear();
@@ -146,11 +146,20 @@ void changeBenchmark() {
     option.text = config;
     configSelect.append(option);
   });
+
   document.title = benchmarkSelect.value;
 
+  // Don't show the configSelect if there are no configs.
+  if (configs.isEmpty) {
+    configSelect.style.display = 'none';
+  } else {
+    configSelect.style.display = 'inline';
+  }
+
+  // Don't show the mutation counts box if running a Setup* benchmark.
   if (benchmarkSelect.value.startsWith('Setup')) {
     mutationCountWrapper.style.display = 'none';
   } else {
-    mutationCountWrapper.style.display = 'inherit';
+    mutationCountWrapper.style.display = 'inline';
   }
 }

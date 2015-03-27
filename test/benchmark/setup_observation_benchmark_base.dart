@@ -18,9 +18,6 @@ abstract class SetupObservationBenchmarkBase extends BenchmarkBase {
   /// The objects we want to observe.
   List<Observable> objects;
 
-  /// The change listeners on all of our objects.
-  List observers;
-
   SetupObservationBenchmarkBase(String name, this.objectCount, this.config)
       : super(name);
 
@@ -36,8 +33,6 @@ abstract class SetupObservationBenchmarkBase extends BenchmarkBase {
   @override
   void setup() {
     objects = [];
-    observers = [];
-
     while (objects.length < objectCount) {
       objects.add(newObject());
     }
@@ -46,21 +41,9 @@ abstract class SetupObservationBenchmarkBase extends BenchmarkBase {
   /// Tear down each the benchmark and remove all listeners.
   @override
   void teardown() {
-    while (observers.isNotEmpty) {
-      var observer = observers.removeLast();
-      if (observer is StreamSubscription) {
-        observer.cancel();
-      } else if (observer is PathObserver) {
-        observer.close();
-      } else {
-        throw 'Unknown observer type ${observer.runtimeType}. Only '
-            '[PathObserver] and [StreamSubscription] are supported.';
-      }
-    }
-    observers = null;
-
     while (objects.isNotEmpty) {
-      if (objects.removeLast().hasObservers) {
+      var obj = objects.removeLast();
+      if (obj.hasObservers || (obj is ObservableList && obj.hasListObservers)) {
         window.alert('Observers leaked!');
       }
     }
@@ -72,9 +55,12 @@ abstract class SetupObservationBenchmarkBase extends BenchmarkBase {
   void run() {
     for (var object in objects) {
       var observer = newObserver(object);
-      observers.add(observer);
-      // If we don't do this, then we crash chrome. It does mean we are
-      // performing extra work though :(.
+
+      // **Note:** This is different than the JS implementation. Since run can
+      // be called an arbitrary number of times between [setup] and [teardown],
+      // we clean up all observers as we go. This means we are measuring both
+      // the setup and teardown of observers, versus the setup only in the
+      // JS benchmark. Not cleaning these up ends up giving `oh snap` errors.
       if (observer is StreamSubscription) {
         observer.cancel();
       } else if (observer is PathObserver) {
@@ -83,7 +69,6 @@ abstract class SetupObservationBenchmarkBase extends BenchmarkBase {
         throw 'Unknown observer type ${observer.runtimeType}. Only '
             '[PathObserver] and [StreamSubscription] are supported.';
       }
-      observers.remove(observer);
     }
   }
 }

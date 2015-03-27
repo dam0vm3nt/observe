@@ -17,13 +17,11 @@ class ArrayBenchmark extends ObservationBenchmarkBase {
   int mutateObject(ObservableList obj) {
     switch (config) {
       case 'update':
-        int mutationsMade = 0;
         var size = (elementCount / 10).floor();
         for (var j = 0; j < size; j++) {
           obj[j * size]++;
-          mutationsMade++;
         }
-        return mutationsMade;
+        return size;
 
       case 'splice':
         var size = (elementCount / 5).floor();
