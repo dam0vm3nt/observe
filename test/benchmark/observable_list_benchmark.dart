@@ -1,15 +1,15 @@
 // Copyright (c) 2013, the Dart project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
-library observe.test.benchmark.array_benchmark;
+library observe.test.benchmark.observable_list_benchmark;
 
 import 'package:observe/observe.dart';
 import 'observation_benchmark_base.dart';
 
-class ArrayBenchmark extends ObservationBenchmarkBase {
+class ObservableListBenchmark extends ObservationBenchmarkBase {
   final int elementCount = 100;
 
-  ArrayBenchmark(int objectCount, int mutationCount, String config) : super(
+  ObservableListBenchmark(int objectCount, int mutationCount, String config) : super(
           'ArrayBenchmark:$objectCount:$mutationCount:$config', objectCount,
           mutationCount, config);
 

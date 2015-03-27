@@ -10,8 +10,8 @@ import 'package:chart/chart.dart';
 import 'package:smoke/mirrors.dart';
 import 'object_benchmark.dart';
 import 'setup_object_benchmark.dart';
-import 'array_benchmark.dart';
-import 'setup_array_benchmark.dart';
+import 'observable_list_benchmark.dart';
+import 'setup_observable_list_benchmark.dart';
 import 'path_benchmark.dart';
 import 'setup_path_benchmark.dart';
 
@@ -21,10 +21,10 @@ final Map<String, Function> benchmarks = {
       new ObjectBenchmark(objectCount, mutationCount, config),
   'SetupObjectBenchmark': (int objectCount, int mutationCount, String config) =>
       new SetupObjectBenchmark(objectCount, config),
-  'ArrayBenchmark': (int objectCount, int mutationCount, String config) =>
-      new ArrayBenchmark(objectCount, mutationCount, config),
-  'SetupArrayBenchmark': (int objectCount, int mutationCount, String config) =>
-      new SetupArrayBenchmark(objectCount, config),
+  'ObservableListBenchmark': (int objectCount, int mutationCount, String config) =>
+      new ObservableListBenchmark(objectCount, mutationCount, config),
+  'SetupObservableListBenchmark': (int objectCount, int mutationCount, String config) =>
+      new SetupObservableListBenchmark(objectCount, config),
   'PathBenchmark': (int objectCount, int mutationCount, String config) =>
       new PathBenchmark(objectCount, mutationCount, config),
   'SetupPathBenchmark': (int objectCount, int mutationCount, String config) =>
@@ -35,8 +35,8 @@ final Map<String, Function> benchmarks = {
 final Map<String, List<String>> benchmarkConfigs = {
   'ObjectBenchmark': [],
   'SetupObjectBenchmark': [],
-  'ArrayBenchmark': ['splice', 'update', 'push/pop', 'shift/unshift'],
-  'SetupArrayBenchmark': [],
+  'ObservableListBenchmark': ['splice', 'update', 'push/pop', 'shift/unshift'],
+  'SetupObservableListBenchmark': [],
   'PathBenchmark': ['leaf', 'root'],
   'SetupPathBenchmark': [],
 };
