@@ -44,11 +44,14 @@ var objectCountInput =
     document.getElementById('objectCountInput') as InputElement;
 var mutationCountInput =
     document.getElementById('mutationCountInput') as InputElement;
+var mutationCountWrapper =
+    document.getElementById('mutationCountWrapper') as SpanElement;
 var statusSpan = document.getElementById('status') as SpanElement;
-var canvaseWrapper = document.getElementById('canvasWrapper') as DivElement;
+var canvasWrapper = document.getElementById('canvasWrapper') as DivElement;
 var benchmarkSelect =
     document.getElementById('benchmarkSelect') as SelectElement;
 var configSelect = document.getElementById('configSelect') as SelectElement;
+var legendList = document.getElementById('legendList') as UListElement;
 var colors = [
   [0, 0, 255],
   [138, 43, 226],
@@ -59,29 +62,36 @@ var colors = [
 ].map((rgb) => 'rgba(' + rgb.join(',') + ',.7)').toList();
 
 main() {
+  // TODO(jakemac): Use a transformer to generate the smoke config so we can see
+  // how that affects the benchmark.
   useMirrors();
+
   benchmarkSelect.onChange.listen((_) => changeBenchmark());
   changeBenchmark();
 
-  var ul = document.getElementById('legendList') as UListElement;
 
   goButton.onClick.listen((_) async {
-    canvaseWrapper.children.clear();
+    canvasWrapper.children.clear();
     goButton.disabled = true;
     goButton.text = 'Running...';
-    ul.text = '';
+    legendList.text = '';
     objectCounts =
         objectCountInput.value.split(',').map((val) => int.parse(val));
-    mutationCounts = mutationCountInput.value
-        .split(',')
-        .map((val) => int.parse(val));
+
+    if (benchmarkSelect.value.startsWith('Setup')) {
+      mutationCounts = [0];
+    } else {
+      mutationCounts = mutationCountInput.value
+          .split(',')
+          .map((val) => int.parse(val));
+    }
 
     var i = 0;
     mutationCounts.forEach((count) {
       var li = document.createElement('li');
       li.text = '$count mutations.';
-      li.style.color = colors[i];
-      ul.append(li);
+      li.style.color = colors[i % colors.length];
+      legendList.append(li);
       i++;
     });
 
@@ -89,8 +99,8 @@ main() {
     for (int objectCount in objectCounts) {
       int x = 0;
       for (int mutationCount in mutationCounts) {
-        statusSpan.text = 'Testing: ${objectCount} objects, '
-            '$mutationCount mutations';
+        statusSpan.text =
+            'Testing: $objectCount objects with $mutationCount mutations';
         // Let the status text render before running the next benchmark.
         await new Future(() {});
         var resultMicros = (benchmarks[benchmarkSelect.value](objectCount,
@@ -108,23 +118,21 @@ main() {
 
 void drawBenchmarks(List<List<double>> results) {
   var datasets = [];
-  var x = 0;
-  for (List<int> times in results) {
+  for (int i = 0; i < results.length; i++) {
     datasets.add({
       'fillColor': 'rgba(255, 255, 255, 0)',
-      'strokeColor': colors[x],
-      'pointColor': colors[x],
+      'strokeColor': colors[i % colors.length],
+      'pointColor': colors[i % colors.length],
       'pointStrokeColor': "#fff",
-      'data': times
+      'data': results[i],
     });
-    x++;
   }
   var data = {
     'labels': objectCounts.map((c) => '$c').toList(),
     'datasets': datasets,
   };
 
-  new Line(data, {'bezierCurve': false,}).show(canvaseWrapper);
+  new Line(data, {'bezierCurve': false,}).show(canvasWrapper);
   goButton.disabled = false;
   goButton.text = 'Run Benchmarks';
   statusSpan.text = '';
@@ -139,4 +147,10 @@ void changeBenchmark() {
     configSelect.append(option);
   });
   document.title = benchmarkSelect.value;
+
+  if (benchmarkSelect.value.startsWith('Setup')) {
+    mutationCountWrapper.style.display = 'none';
+  } else {
+    mutationCountWrapper.style.display = 'inherit';
+  }
 }
