@@ -8,26 +8,29 @@ import 'observation_benchmark_base.dart';
 import 'test_path_observable.dart';
 
 class PathBenchmark extends ObservationBenchmarkBase {
-  final bool leaf;
   final PropertyPath path = new PropertyPath('foo.bar.baz');
 
   PathBenchmark(int objectCount, int mutationCount, String config)
       : super('PathBenchmark:$objectCount:$mutationCount:$config', objectCount,
-          mutationCount, config),
-        leaf = config == 'leaf';
+          mutationCount, config);
 
   @override
   int mutateObject(TestPathObservable obj) {
-    if (leaf) {
-      obj.foo.bar.baz += 1;
-      // Make sure [obj.foo.bar] delivers its changes synchronously. The base
-      // class already handles this for [obj].
-      obj.foo.bar.deliverChanges();
-    } else {
-      obj.foo = new Foo(obj.foo.bar.baz + 1);
-    }
+    switch (config) {
+      case 'leaf':
+        obj.foo.bar.baz += 1;
+        // Make sure [obj.foo.bar] delivers its changes synchronously. The base
+        // class already handles this for [obj].
+        obj.foo.bar.deliverChanges();
+        return 1;
 
-    return 1;
+      case 'root':
+        obj.foo = new Foo(obj.foo.bar.baz + 1);
+        return 1;
+
+      default:
+        throw new ArgumentError('Invalid config for PathBenchmark: $config');
+    }
   }
 
   @override

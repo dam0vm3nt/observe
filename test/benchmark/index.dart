@@ -21,10 +21,11 @@ final Map<String, Function> benchmarks = {
       new ObjectBenchmark(objectCount, mutationCount, config),
   'SetupObjectBenchmark': (int objectCount, int mutationCount, String config) =>
       new SetupObjectBenchmark(objectCount, config),
-  'ObservableListBenchmark': (int objectCount, int mutationCount, String config) =>
-      new ObservableListBenchmark(objectCount, mutationCount, config),
-  'SetupObservableListBenchmark': (int objectCount, int mutationCount, String config) =>
-      new SetupObservableListBenchmark(objectCount, config),
+  'ObservableListBenchmark':
+      (int objectCount, int mutationCount, String config) =>
+          new ObservableListBenchmark(objectCount, mutationCount, config),
+  'SetupObservableListBenchmark': (int objectCount, int mutationCount,
+      String config) => new SetupObservableListBenchmark(objectCount, config),
   'PathBenchmark': (int objectCount, int mutationCount, String config) =>
       new PathBenchmark(objectCount, mutationCount, config),
   'SetupPathBenchmark': (int objectCount, int mutationCount, String config) =>
@@ -81,9 +82,8 @@ main() {
     if (benchmarkSelect.value.startsWith('Setup')) {
       mutationCounts = [0];
     } else {
-      mutationCounts = mutationCountInput.value
-          .split(',')
-          .map((val) => int.parse(val));
+      mutationCounts =
+          mutationCountInput.value.split(',').map((val) => int.parse(val));
     }
 
     var i = 0;

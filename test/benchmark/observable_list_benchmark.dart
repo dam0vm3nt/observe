@@ -9,9 +9,9 @@ import 'observation_benchmark_base.dart';
 class ObservableListBenchmark extends ObservationBenchmarkBase {
   final int elementCount = 100;
 
-  ObservableListBenchmark(int objectCount, int mutationCount, String config) : super(
-          'ArrayBenchmark:$objectCount:$mutationCount:$config', objectCount,
-          mutationCount, config);
+  ObservableListBenchmark(int objectCount, int mutationCount, String config)
+      : super('ObservableListBenchmark:$objectCount:$mutationCount:$config',
+          objectCount, mutationCount, config);
 
   @override
   int mutateObject(ObservableList obj) {
@@ -25,14 +25,12 @@ class ObservableListBenchmark extends ObservationBenchmarkBase {
 
       case 'splice':
         var size = (elementCount / 5).floor();
-        // No splice equivalent in dart, so we hardcode it.
+        // No splice equivalent in List, so we hardcode it.
         var removed = [];
         for (int i = 0; i < size; i++) {
           removed.add(obj.removeAt(i + size));
         }
-        for (int i = 0; i < size; i++) {
-          obj.insert(size * 2, removed.removeAt(0));
-        }
+        obj.insertAll(size * 2, removed);
         return size * 2;
 
       case 'push/pop':
@@ -46,7 +44,8 @@ class ObservableListBenchmark extends ObservationBenchmarkBase {
         return 2;
 
       default:
-        throw new ArgumentError('Invalid config for ArrayBenchmark: $config');
+        throw new ArgumentError(
+            'Invalid config for ObservableListBenchmark: $config');
     }
   }
 
