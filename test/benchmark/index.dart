@@ -7,6 +7,7 @@ import 'dart:async';
 import 'dart:html';
 import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:chart/chart.dart';
+import 'package:observe/mirrors_used.dart'; // Makes output smaller.
 import 'package:smoke/mirrors.dart';
 import 'object_benchmark.dart';
 import 'setup_object_benchmark.dart';
